@@ -1,0 +1,77 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for post-install
+- name: Install ntp agent on centos
+  yum:
+    name: "{{item}}"
+    state: present
+  when: ansible_distribution == "CentOS"
+  loop:
+    - chrony
+    - wget
+    - git
+    - unzip
+    - zip
+
+- name: Install ntp agent on ubuntu
+  apt:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu" 
+  loop:
+    - ntp
+    - wget
+    - git
+    - unzip
+    - zip
+
+
+- name: Start Service on centOS
+  service:
+    name: chronyd
+    state: started
+    enabled: yes
+  when: ansible_distribution == "CentOS"
+
+- name: Start Service on ubuntu
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+  when: ansible_distribution == "Ubuntu"
+
+
+- name: BannweFi
+  copy:
+    content: '# This server is managed by ansible. No Manual changes please!'
+    dest: /etc/motd
+  
+- name: Create a folder
+  file:
+    path: "{{mydir}}"
+    state: directory
+
+- name: Deploy ntp agent conf on centos
+  template:
+    src: ntpconf_centos.j2
+    dest: /etc/chrony.conf
+    backup: yes
+  when: ansible_distribution == "CentOS"
+  notify:
+    - Restart Service on centOS
+
+- name: Deploy ntp agent conf on ubuntu
+  template:
+    src: ntpconf_ubuntu.j2
+    dest: /etc/ntpsec/ntp.conf
+    backup: yes
+  when: ansible_distribution == "Ubuntu"      
+  notify:
+    - Restart Service on ubuntu
+
+- name: Dump file
+  copy:
+    src: myfile.txt
+    dest: /tmp/myfile.txt
+
