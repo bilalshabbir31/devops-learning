@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ngdep
+  name: ngdep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ngdep
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: ngdep
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        resources: {}
+status: {}
